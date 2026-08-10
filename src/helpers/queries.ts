@@ -63,7 +63,9 @@ export const crearServicioApi = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify(servicio),
+      credentials: "include",
     });
+
     return respuesta;
   } catch (error) {
     console.error(error);
@@ -110,7 +112,9 @@ export const editarServicioApi = async (
         "Content-Type": "application/json",
       },
       body: JSON.stringify(servicio),
+      credentials: "include",
     });
+    console.log(respuesta);
     return respuesta;
   } catch (error) {
     console.error(error);

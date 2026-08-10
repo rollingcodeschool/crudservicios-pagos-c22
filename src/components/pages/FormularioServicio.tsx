@@ -61,10 +61,11 @@ const FormularioServicio = ({ titulo }: FormularioServicioProps) => {
     }
   };
 
-  const onSubmit: SubmitHandler<ServicioFormData> = (data , e) => {
+  const onSubmit: SubmitHandler<ServicioFormData> = async(data , e) => {
     console.log(data);
     if (titulo.includes("Crear") && crearServicioApi) {
-      crearServicioApi(data);
+       await crearServicioApi(data);
+    
       Swal.fire({
         title: "Servicio creado",
         text: `El servicio '${data.nombreServicio}' fue creado correctamente`,
@@ -77,16 +78,28 @@ const FormularioServicio = ({ titulo }: FormularioServicioProps) => {
         (e.target as HTMLFormElement).reset();
       }
     } else if (id) {
-      editarServicioApi(id, data);
-      Swal.fire({
-        title: "Servicio editado",
-        text: `El servicio '${data.nombreServicio}' fue editado correctamente`,
-        icon: "success",
-        background: "#18181b",
-        color: "#f4f4f5",
-        confirmButtonColor: "#3b82f6",
-      });
-      navegacion("/administrador");
+     const respuesta = await editarServicioApi(id, data);
+      console.log(respuesta)
+      if(respuesta.ok){
+        Swal.fire({
+          title: "Servicio editado",
+          text: `El servicio '${data.nombreServicio}' fue editado correctamente`,
+          icon: "success",
+          background: "#18181b",
+          color: "#f4f4f5",
+          confirmButtonColor: "#3b82f6",
+        });
+        navegacion("/administrador");
+      }else{
+        Swal.fire({
+          title: "Ocurrio un error",
+          text: `El servicio '${data.nombreServicio}' no pudo ser editado.`,
+          icon: "error",
+          background: "#18181b",
+          color: "#f4f4f5",
+          confirmButtonColor: "#3b82f6",
+        });
+      }
     }
   };
 
