@@ -151,4 +151,42 @@ export const obtenerPerfilApi = async (): Promise<Usuario> => {
 
   return respuesta.json();
 };
+//🆕 consultas para carrito
+export const agregarAlCarritoApi = async (servicioId: string, cantidad = 1): Promise<Response> => {
+  try {
+    const respuesta = await fetch('http://localhost:3000/api/carrito', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ servicioId, cantidad }),
+    });
+    return respuesta;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const obtenerCantidadCarritoApi = async (): Promise<number> => {
+  try {
+    const respuesta = await fetch('http://localhost:3000/api/carrito', {
+      method: 'GET',
+      credentials: 'include',
+    });
+    if (respuesta.status === 401 || respuesta.status === 403) {
+      // usuario no autenticado: no hay carrito accesible
+      return 0;
+    }
+    if (!respuesta.ok) {
+      throw new Error('No se pudo obtener el carrito');
+    }
+    const data = await respuesta.json();
+    if (!data || !Array.isArray(data.items)) return 0;
+    return data.items.reduce((acc: number, it: any) => acc + (Number(it.cantidad) || 0), 0);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+//🆕 fin consultas carrito
 //🆕 Fin consultas para login de usuario
