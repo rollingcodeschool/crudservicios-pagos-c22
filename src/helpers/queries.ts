@@ -189,4 +189,38 @@ export const obtenerCantidadCarritoApi = async (): Promise<number> => {
   }
 };
 //🆕 fin consultas carrito
+//🆕 obtener carrito completo
+export const obtenerCarritoApi = async (): Promise<any> => {
+  try {
+    const respuesta = await fetch('http://localhost:3000/api/carrito', {
+      method: 'GET',
+      credentials: 'include',
+    });
+    if (respuesta.status === 401 || respuesta.status === 403) {
+      return null;
+    }
+    if (!respuesta.ok) {
+      throw new Error('No se pudo obtener el carrito');
+    }
+    return respuesta.json();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+//🆕 crear preferencia de pago (MercadoPago) - backend crea la preferencia y devuelve init_point
+export const crearPreferenciaPagoApi = async (): Promise<Response> => {
+  try {
+    const respuesta = await fetch('http://localhost:3000/api/pago/crear-preferencia', {
+      method: 'POST',
+      credentials: 'include',
+    });
+    return respuesta;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+//🆕 fin pagos
 //🆕 Fin consultas para login de usuario

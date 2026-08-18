@@ -11,6 +11,8 @@ import { useEffect, useState } from "react";
 import { AppContext } from "./context/AppContext";
 //import type { Servicio } from "./interfaces/servicios";
 import DetalleServicio from "./components/pages/DetalleServicio";
+import Carrito from "./components/pages/Carrito";
+import CheckoutResultado from "./components/pages/CheckoutResultado";
 import type { Usuario } from "./interfaces/usuarios";
 import { loginBackendApi, logoutBackendApi, obtenerPerfilApi, obtenerCantidadCarritoApi } from "./helpers/queries";
 
@@ -133,6 +135,8 @@ function App() {
               <Route path="/" element={<Inicio></Inicio>} />
               <Route path="/login" element={<Login></Login>} />
               <Route path="/servicio/:id" element={<DetalleServicio />} />
+              <Route path="/carrito" element={<Carrito />} />
+              <Route path="/checkout/resultado" element={<CheckoutResultado />} />
               <Route path="/administrador" element={<ProtectorRutas />}>
                 <Route index element={<Administrador />} />
                 <Route
