@@ -72,10 +72,6 @@ const Menu = () => {
                     </NavLink>
                   )}
 
-                  <NavLink to="/carrito" className={navLinkStyles}>
-                    Carrito
-                  </NavLink>
-
                   <button
                     onClick={() => void logout()}
                     className="flex items-center gap-2 bg-zinc-800 hover:bg-red-900/40 text-red-400 px-4 py-2 rounded-md text-sm font-medium transition-all border border-zinc-700 hover:border-red-500/50"
