@@ -167,6 +167,22 @@ export const agregarAlCarritoApi = async (servicioId: string, cantidad = 1): Pro
   }
 };
 
+export const restarDelCarritoApi = async (servicioId: string): Promise<Response> => {
+  const respuesta = await fetch(`http://localhost:3000/api/carrito/restar/${servicioId}`, {
+    method: 'PATCH',
+    credentials: 'include',
+  });
+  return respuesta;
+};
+
+export const eliminarServicioDelCarritoApi = async (servicioId: string): Promise<Response> => {
+  const respuesta = await fetch(`http://localhost:3000/api/carrito/servicio/${servicioId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  return respuesta;
+};
+
 export const obtenerCantidadCarritoApi = async (): Promise<number> => {
   try {
     const respuesta = await fetch('http://localhost:3000/api/carrito', {

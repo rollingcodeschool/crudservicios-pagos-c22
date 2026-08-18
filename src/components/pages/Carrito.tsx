@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
-import { obtenerCarritoApi, crearPreferenciaPagoApi } from "../../helpers/queries";
+import {
+  agregarAlCarritoApi,
+  crearPreferenciaPagoApi,
+  eliminarServicioDelCarritoApi,
+  obtenerCarritoApi,
+  restarDelCarritoApi,
+} from "../../helpers/queries";
 import { Link, useNavigate } from "react-router";
 
 const Carrito = () => {
   const { usuarioLogueado, refreshCarritoCount } = useAppContext();
   const [carrito, setCarrito] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [updatingItem, setUpdatingItem] = useState<string | null>(null);
   const navegacion = useNavigate();
 
   const fetchCarrito = async () => {
@@ -29,6 +36,51 @@ const Carrito = () => {
   const calcularTotal = () => {
     if (!carrito || !Array.isArray(carrito.items)) return 0;
     return carrito.items.reduce((acc: number, it: any) => acc + (Number(it.servicio?.precio || 0) * Number(it.cantidad || 0)), 0);
+  };
+
+  const actualizarCantidad = async (item: any, nuevaCantidad: number) => {
+    const cantidadActual = Number(item.cantidad) || 0;
+    const cantidadSolicitada = Math.max(1, Math.floor(nuevaCantidad));
+    const diferencia = cantidadSolicitada - cantidadActual;
+    const servicioId = String(item.servicio?._id || item.servicioId);
+
+    if (!servicioId || diferencia === 0) return;
+
+    setUpdatingItem(String(item._id));
+    try {
+      if (diferencia > 0) {
+        const respuesta = await agregarAlCarritoApi(servicioId, diferencia);
+        if (!respuesta.ok) throw new Error("No se pudo aumentar la cantidad");
+      } else {
+        for (let index = 0; index < Math.abs(diferencia); index += 1) {
+          const respuesta = await restarDelCarritoApi(servicioId);
+          if (!respuesta.ok) throw new Error("No se pudo disminuir la cantidad");
+        }
+      }
+      await fetchCarrito();
+      await refreshCarritoCount();
+    } catch (error) {
+      console.error("No se pudo actualizar la cantidad", error);
+    } finally {
+      setUpdatingItem(null);
+    }
+  };
+
+  const eliminarItem = async (item: any) => {
+    const servicioId = String(item.servicio?._id || item.servicioId);
+    if (!servicioId) return;
+
+    setUpdatingItem(String(item._id));
+    try {
+      const respuesta = await eliminarServicioDelCarritoApi(servicioId);
+      if (!respuesta.ok) throw new Error("No se pudo eliminar el servicio");
+      await fetchCarrito();
+      await refreshCarritoCount();
+    } catch (error) {
+      console.error("No se pudo eliminar el servicio del carrito", error);
+    } finally {
+      setUpdatingItem(null);
+    }
   };
 
   const handleComprar = async () => {
@@ -77,9 +129,35 @@ const Carrito = () => {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold">{it.servicio?.nombreServicio}</h3>
-                    <div className="text-zinc-300">{(it.servicio?.precio || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</div>
+                    <div className="text-right">
+                      <div className="text-sm text-zinc-400">
+                        Unitario: {(it.servicio?.precio || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}
+                      </div>
+                      <div className="font-semibold text-zinc-200">
+                        Subtotal: {((Number(it.servicio?.precio) || 0) * (Number(it.cantidad) || 0)).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-sm text-zinc-400">Cantidad: {it.cantidad}</div>
+                  <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-zinc-400">
+                    <label htmlFor={`cantidad-${it._id}`}>Cantidad</label>
+                    <input
+                      id={`cantidad-${it._id}`}
+                      type="number"
+                      min="1"
+                      value={it.cantidad}
+                      disabled={updatingItem === String(it._id)}
+                      onChange={(event) => void actualizarCantidad(it, Number(event.target.value))}
+                      className="w-20 rounded border border-zinc-700 bg-zinc-950 px-2 py-1 text-center text-zinc-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void eliminarItem(it)}
+                      disabled={updatingItem === String(it._id)}
+                      className="text-rose-400 hover:text-rose-300 disabled:opacity-50"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
                 </div>
               </li>
             ))}
