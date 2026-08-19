@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { LuMenu, LuX, LuCodeXml, LuLogOut } from "react-icons/lu";
+import { LuMenu, LuX, LuCodeXml, LuLogOut, LuShoppingCart } from "react-icons/lu";
 import { Link, NavLink, useNavigate } from "react-router";
 import { useAppContext } from "../../context/AppContext";
 
 const Menu = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { usuarioLogueado, loadingSession, logoutBackend } = useAppContext();
+  const { usuarioLogueado, loadingSession, logoutBackend, carritoCount } = useAppContext();
   const navegacion = useNavigate();
 
   const isAdmin = usuarioLogueado?.rol === "admin";
@@ -56,15 +56,22 @@ const Menu = () => {
               <NavLink to="/" className={navLinkStyles}>
                 Inicio
               </NavLink>
+              <Link to="/carrito" className="relative text-zinc-300 hover:text-blue-400">
+                <LuShoppingCart className="text-2xl" />
+                {carritoCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-400 rounded-full ring-1 ring-zinc-900" />
+                )}
+              </Link>
               {loadingSession ? (
                 <span className="text-zinc-400 text-sm">Cargando...</span>
               ) : usuarioLogueado ? (
                 <>
-                 {isAdmin && (
+                  {isAdmin && (
                     <NavLink to="/administrador" className={navLinkStyles}>
                       Administrador
                     </NavLink>
                   )}
+
                   <button
                     onClick={() => void logout()}
                     className="flex items-center gap-2 bg-zinc-800 hover:bg-red-900/40 text-red-400 px-4 py-2 rounded-md text-sm font-medium transition-all border border-zinc-700 hover:border-red-500/50"

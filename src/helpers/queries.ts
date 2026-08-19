@@ -155,4 +155,92 @@ export const obtenerPerfilApi = async (): Promise<Usuario> => {
 
   return respuesta.json();
 };
+//🆕 consultas para carrito
+export const agregarAlCarritoApi = async (servicioId: string, cantidad = 1): Promise<Response> => {
+  try {
+    const respuesta = await fetch('http://localhost:3000/api/carrito', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ servicioId, cantidad }),
+    });
+    return respuesta;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const restarDelCarritoApi = async (servicioId: string): Promise<Response> => {
+  const respuesta = await fetch(`http://localhost:3000/api/carrito/restar/${servicioId}`, {
+    method: 'PATCH',
+    credentials: 'include',
+  });
+  return respuesta;
+};
+
+export const eliminarServicioDelCarritoApi = async (servicioId: string): Promise<Response> => {
+  const respuesta = await fetch(`http://localhost:3000/api/carrito/servicio/${servicioId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  return respuesta;
+};
+
+export const obtenerCantidadCarritoApi = async (): Promise<number> => {
+  try {
+    const respuesta = await fetch('http://localhost:3000/api/carrito', {
+      method: 'GET',
+      credentials: 'include',
+    });
+    if (respuesta.status === 401 || respuesta.status === 403) {
+      // usuario no autenticado: no hay carrito accesible
+      return 0;
+    }
+    if (!respuesta.ok) {
+      throw new Error('No se pudo obtener el carrito');
+    }
+    const data = await respuesta.json();
+    if (!data || !Array.isArray(data.items)) return 0;
+    return data.items.reduce((acc: number, it: any) => acc + (Number(it.cantidad) || 0), 0);
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+//🆕 fin consultas carrito
+//🆕 obtener carrito completo
+export const obtenerCarritoApi = async (): Promise<any> => {
+  try {
+    const respuesta = await fetch('http://localhost:3000/api/carrito', {
+      method: 'GET',
+      credentials: 'include',
+    });
+    if (respuesta.status === 401 || respuesta.status === 403) {
+      return null;
+    }
+    if (!respuesta.ok) {
+      throw new Error('No se pudo obtener el carrito');
+    }
+    return respuesta.json();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+//🆕 crear preferencia de pago (MercadoPago) - backend crea la preferencia y devuelve init_point
+export const crearPreferenciaPagoApi = async (): Promise<Response> => {
+  try {
+    const respuesta = await fetch('http://localhost:3000/api/pago/crear-preferencia', {
+      method: 'POST',
+      credentials: 'include',
+    });
+    return respuesta;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+//🆕 fin pagos
 //🆕 Fin consultas para login de usuario
