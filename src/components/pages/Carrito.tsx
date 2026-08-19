@@ -27,7 +27,7 @@ const Carrito = () => {
 
   useEffect(() => {
     if (usuarioLogueado) {
-      fetchCarrito();
+      void fetchCarrito();
     } else {
       setCarrito(null);
     }
