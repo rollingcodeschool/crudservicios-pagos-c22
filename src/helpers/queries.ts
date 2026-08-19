@@ -6,6 +6,8 @@ import type { Usuario } from "../interfaces/usuarios";
 const urlServicios = import.meta.env.VITE_SERVICIO + "/servicios";
 const urlCategorias = import.meta.env.VITE_SERVICIO + "/categorias";
 const urlUsuarios = import.meta.env.VITE_SERVICIO + "/usuarios";
+const urlCarrito = import.meta.env.VITE_SERVICIO + "/carrito";
+const urlPago = import.meta.env.VITE_SERVICIO + "/pago";
 
 // 2. Tipamos las funciones.
 // Nota: 'fetch' por defecto retorna una Promesa con un objeto 'Response'
@@ -158,11 +160,11 @@ export const obtenerPerfilApi = async (): Promise<Usuario> => {
 //🆕 consultas para carrito
 export const agregarAlCarritoApi = async (servicioId: string, cantidad = 1): Promise<Response> => {
   try {
-    const respuesta = await fetch('http://localhost:3000/api/carrito', {
+    const respuesta = await fetch(urlCarrito, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ servicioId, cantidad }),
+      body: JSON.stringify({ servicio: servicioId, cantidad }),
     });
     return respuesta;
   } catch (error) {
@@ -172,7 +174,7 @@ export const agregarAlCarritoApi = async (servicioId: string, cantidad = 1): Pro
 };
 
 export const restarDelCarritoApi = async (servicioId: string): Promise<Response> => {
-  const respuesta = await fetch(`http://localhost:3000/api/carrito/restar/${servicioId}`, {
+  const respuesta = await fetch(`${urlCarrito}/restar/${servicioId}`, {
     method: 'PATCH',
     credentials: 'include',
   });
@@ -180,7 +182,7 @@ export const restarDelCarritoApi = async (servicioId: string): Promise<Response>
 };
 
 export const eliminarServicioDelCarritoApi = async (servicioId: string): Promise<Response> => {
-  const respuesta = await fetch(`http://localhost:3000/api/carrito/servicio/${servicioId}`, {
+  const respuesta = await fetch(`${urlCarrito}/servicio/${servicioId}`, {
     method: 'DELETE',
     credentials: 'include',
   });
@@ -189,7 +191,7 @@ export const eliminarServicioDelCarritoApi = async (servicioId: string): Promise
 
 export const obtenerCantidadCarritoApi = async (): Promise<number> => {
   try {
-    const respuesta = await fetch('http://localhost:3000/api/carrito', {
+    const respuesta = await fetch(urlCarrito, {
       method: 'GET',
       credentials: 'include',
     });
@@ -212,7 +214,7 @@ export const obtenerCantidadCarritoApi = async (): Promise<number> => {
 //🆕 obtener carrito completo
 export const obtenerCarritoApi = async (): Promise<any> => {
   try {
-    const respuesta = await fetch('http://localhost:3000/api/carrito', {
+    const respuesta = await fetch(urlCarrito, {
       method: 'GET',
       credentials: 'include',
     });
@@ -232,7 +234,7 @@ export const obtenerCarritoApi = async (): Promise<any> => {
 //🆕 crear preferencia de pago (MercadoPago) - backend crea la preferencia y devuelve init_point
 export const crearPreferenciaPagoApi = async (): Promise<Response> => {
   try {
-    const respuesta = await fetch('http://localhost:3000/api/pago/crear-preferencia', {
+    const respuesta = await fetch(`${urlPago}/crear-preferencia`, {
       method: 'POST',
       credentials: 'include',
     });
