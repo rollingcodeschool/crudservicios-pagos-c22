@@ -4,7 +4,7 @@ Este proyecto es una aplicación web desarrollada con React y TypeScript que per
 
 ## 🦖 Demo
 
-mira la demo del proyecto [aqui](https://catalogo-servicios-c23.netlify.app/)
+mira la demo del proyecto [aqui](https://catalogo-servicios-c22.netlify.app/)
 
 ## 🚀 Librerías utilizadas
 
@@ -20,7 +20,7 @@ mira la demo del proyecto [aqui](https://catalogo-servicios-c23.netlify.app/)
 
 1. **Clonar el repositorio:**
    ```bash
-   git clone https://github.com/rollingcodeschool/crud-servicios-c23
+   git clone https://github.com/rollingcodeschool/crudservicios-pagos-c22
    ```
 2. **Instalar dependencias:**
    ```bash
