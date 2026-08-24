@@ -35,8 +35,8 @@ const FormularioServicio = ({ titulo }: FormularioServicioProps) => {
   const registroImagen = register("imagen", {
     required: titulo.includes("Crear") ? "La imagen es obligatoria" : false,
     validate: {
-      fileSize: (files) =>
-        !files?.[0] ||
+      fileSize: (files: FileList) =>
+        !files[0] ||
         files[0].size <= 2 * 1024 * 1024 ||
         "La imagen no debe superar los 2MB.",
     },
@@ -218,7 +218,8 @@ const FormularioServicio = ({ titulo }: FormularioServicioProps) => {
                 {...registroImagen}
                 onChange={(e) => {
                   registroImagen.onChange(e);
-                  const file = e.target.files?.[0];
+                  const files = e.target.files;
+                  const file = files ? files[0] : undefined;
                   setPreview(file ? URL.createObjectURL(file) : "");
                 }}
               />
