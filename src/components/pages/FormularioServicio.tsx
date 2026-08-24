@@ -21,6 +21,7 @@ const FormularioServicio = ({ titulo }: FormularioServicioProps) => {
     handleSubmit,
     formState: { errors },
     setValue,
+    resetField, //agregar el reset del input tipo field
   } = useForm<ServicioFormData>();
   // traigo los datos que necesito del contexto
   // const { crearServicio, buscarServicio, editarServicio } = useAppContext();
@@ -28,6 +29,9 @@ const FormularioServicio = ({ titulo }: FormularioServicioProps) => {
   const { id } = useParams<{ id: string }>();
   const navegacion = useNavigate();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
+  // agrego estos dos states
+  const [imagenActual, setImagenActual] = useState("");
+  const [preview, setPreview] = useState("");
 
   useEffect(() => {
     cargarCategorias(); //nuevo cargo las categorias
@@ -53,19 +57,21 @@ const FormularioServicio = ({ titulo }: FormularioServicioProps) => {
         const servicioBuscado = await respuestaServicio.json();
         setValue("nombreServicio", servicioBuscado.nombreServicio);
         setValue("precio", servicioBuscado.precio);
-        const categoriaId = servicioBuscado.categoria?._id ?? servicioBuscado.categoria; //cargo el id de la categoria en el select del formulario
+        const categoriaId =
+          servicioBuscado.categoria?._id ?? servicioBuscado.categoria; //cargo el id de la categoria en el select del formulario
         setValue("categoria", categoriaId);
         setValue("descripcion", servicioBuscado.descripcion);
-        setValue("imagen", servicioBuscado.imagen);
+        // setValue("imagen", servicioBuscado.imagen);
+        setImagenActual(servicioBuscado.imagen);
       }
     }
   };
 
-  const onSubmit: SubmitHandler<ServicioFormData> = async(data , e) => {
+  const onSubmit: SubmitHandler<ServicioFormData> = async (data, e) => {
     console.log(data);
     if (titulo.includes("Crear") && crearServicioApi) {
-       await crearServicioApi(data);
-    
+      await crearServicioApi(data);
+
       Swal.fire({
         title: "Servicio creado",
         text: `El servicio '${data.nombreServicio}' fue creado correctamente`,
@@ -76,11 +82,14 @@ const FormularioServicio = ({ titulo }: FormularioServicioProps) => {
       });
       if (e) {
         (e.target as HTMLFormElement).reset();
+        resetField("imagen");
+        setPreview("");
+        setImagenActual("");
       }
     } else if (id) {
-     const respuesta = await editarServicioApi(id, data);
-      console.log(respuesta)
-      if(respuesta.ok){
+      const respuesta = await editarServicioApi(id, data);
+      console.log(respuesta);
+      if (respuesta.ok) {
         Swal.fire({
           title: "Servicio editado",
           text: `El servicio '${data.nombreServicio}' fue editado correctamente`,
@@ -90,7 +99,7 @@ const FormularioServicio = ({ titulo }: FormularioServicioProps) => {
           confirmButtonColor: "#3b82f6",
         });
         navegacion("/administrador");
-      }else{
+      } else {
         Swal.fire({
           title: "Ocurrio un error",
           text: `El servicio '${data.nombreServicio}' no pudo ser editado.`,
@@ -194,18 +203,46 @@ const FormularioServicio = ({ titulo }: FormularioServicioProps) => {
                 URL de Imagen*
               </label>
               <input
-                type="text"
+                type="file"
+                accept="image/*"
                 placeholder="https://ejemplo.com/imagen.jpg"
                 className={inputClass(!!errors.imagen)}
                 {...register("imagen", {
                   required: "La URL es obligatoria",
-                  pattern: {
-                    value: /\.(jpg|jpeg|png|webp|avif|svg)$/,
-                    message:
-                      "Debe ser una URL de imagen válida (jpg, png, webp, etc.)",
+                  validate: {
+                    fileSize: (files) =>
+                      !files[0] ||
+                      files[0].size <= 2 * 1024 * 1024 ||
+                      "La imagen no debe superar los 2MB.",
                   },
                 })}
+                onChange={(e) => {
+              const file = e.target.files[0];
+              if (file) {
+                setPreview(URL.createObjectURL(file)); //crea una URL temporal en el navegador
+              } else {
+                setPreview("");
+              }
+            }}
               />
+              {(preview || imagenActual) && (
+            <div className="mb-2 position-relative d-inline-block mt-3">
+              <img
+                className="rounded-3 img-preview"
+                src={preview || imagenActual}
+                alt="Imagen"
+              />
+              <button
+                onClick={() => {
+                  setPreview('');
+                  setImagenActual('');
+                  resetField('imagen');
+                }}
+              >
+                <i className="bi bi-x fs-5 text-danger"></i>
+              </button>
+            </div>
+          )}
               <p className="text-red-500 text-xs mt-1 italic">
                 {errors.imagen?.message}
               </p>

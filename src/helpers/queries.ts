@@ -59,6 +59,14 @@ export const crearServicioApi = async (
   servicio: ServicioFormData,
 ): Promise<Response> => {
   try {
+    //preparamos los datos
+     const formData = new FormData()
+        formData.append('servicio', servicio.nombreServicio)
+        formData.append('precio', servicio.precio)
+        formData.append('categoria', servicio.categoria)
+        formData.append('descripcion', servicio.descripcion)
+        formData.append('imagen', servicio.imagen)
+
     const respuesta = await fetch(urlServicios, {
       method: "POST",
       headers: {
