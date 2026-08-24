@@ -13,4 +13,6 @@ export interface Servicio {
   descripcion: string;
 }
 
-export type ServicioFormData = Omit<Servicio, '_id'>;
+export type ServicioFormData = Omit<Servicio, "_id" | "imagen"> & {
+  imagen: FileList;
+};

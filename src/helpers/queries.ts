@@ -1,6 +1,6 @@
 // 1. Definimos la interfaz de cómo luce un Servicio en tu app
 // Modifica los campos según lo que realmente use tu base de datos
-import type { Servicio, ServicioFormData } from "../interfaces/servicios";
+import type { ServicioFormData } from "../interfaces/servicios";
 import type { Usuario } from "../interfaces/usuarios";
 
 const urlServicios = import.meta.env.VITE_SERVICIO + "/servicios";
@@ -8,6 +8,30 @@ const urlCategorias = import.meta.env.VITE_SERVICIO + "/categorias";
 const urlUsuarios = import.meta.env.VITE_SERVICIO + "/usuarios";
 const urlCarrito = import.meta.env.VITE_SERVICIO + "/carrito";
 const urlPago = import.meta.env.VITE_SERVICIO + "/pago";
+
+const prepararFormDataServicio = (
+  servicio: Partial<ServicioFormData>,
+): FormData => {
+  const formData = new FormData();
+
+  if (servicio.nombreServicio !== undefined) {
+    formData.append("nombreServicio", servicio.nombreServicio);
+  }
+  if (servicio.precio !== undefined) {
+    formData.append("precio", String(servicio.precio));
+  }
+  if (servicio.categoria !== undefined) {
+    formData.append("categoria", String(servicio.categoria));
+  }
+  if (servicio.descripcion !== undefined) {
+    formData.append("descripcion", servicio.descripcion);
+  }
+  if (servicio.imagen?.[0]) {
+    formData.append("imagen", servicio.imagen[0]);
+  }
+
+  return formData;
+};
 
 // 2. Tipamos las funciones.
 // Nota: 'fetch' por defecto retorna una Promesa con un objeto 'Response'
@@ -59,20 +83,11 @@ export const crearServicioApi = async (
   servicio: ServicioFormData,
 ): Promise<Response> => {
   try {
-    //preparamos los datos
-     const formData = new FormData()
-        formData.append('servicio', servicio.nombreServicio)
-        formData.append('precio', servicio.precio)
-        formData.append('categoria', servicio.categoria)
-        formData.append('descripcion', servicio.descripcion)
-        formData.append('imagen', servicio.imagen)
+    const formData = prepararFormDataServicio(servicio);
 
     const respuesta = await fetch(urlServicios, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(servicio),
+      body: formData,
       credentials: "include",
     });
 
@@ -114,15 +129,14 @@ export const buscarServicioApi = async (
 // o directamente 'Servicio' si mandas el objeto completo.
 export const editarServicioApi = async (
   id: string | number,
-  servicio: Partial<Servicio>,
+  servicio: Partial<ServicioFormData>,
 ): Promise<Response> => {
   try {
+    const formData = prepararFormDataServicio(servicio);
+
     const respuesta = await fetch(`${urlServicios}/${id}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(servicio),
+      body: formData,
       credentials: "include",
     });
     console.log(respuesta);

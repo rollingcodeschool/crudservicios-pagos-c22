@@ -32,6 +32,15 @@ const FormularioServicio = ({ titulo }: FormularioServicioProps) => {
   // agrego estos dos states
   const [imagenActual, setImagenActual] = useState("");
   const [preview, setPreview] = useState("");
+  const registroImagen = register("imagen", {
+    required: titulo.includes("Crear") ? "La imagen es obligatoria" : false,
+    validate: {
+      fileSize: (files) =>
+        !files?.[0] ||
+        files[0].size <= 2 * 1024 * 1024 ||
+        "La imagen no debe superar los 2MB.",
+    },
+  });
 
   useEffect(() => {
     cargarCategorias(); //nuevo cargo las categorias
@@ -197,52 +206,43 @@ const FormularioServicio = ({ titulo }: FormularioServicioProps) => {
               </p>
             </div>
 
-            {/* URL Imagen */}
+            {/* Imagen */}
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-zinc-300 mb-2">
-                URL de Imagen*
+                Imagen{titulo.includes("Crear") ? "*" : ""}
               </label>
               <input
                 type="file"
                 accept="image/*"
-                placeholder="https://ejemplo.com/imagen.jpg"
                 className={inputClass(!!errors.imagen)}
-                {...register("imagen", {
-                  required: "La URL es obligatoria",
-                  validate: {
-                    fileSize: (files) =>
-                      !files[0] ||
-                      files[0].size <= 2 * 1024 * 1024 ||
-                      "La imagen no debe superar los 2MB.",
-                  },
-                })}
+                {...registroImagen}
                 onChange={(e) => {
-              const file = e.target.files[0];
-              if (file) {
-                setPreview(URL.createObjectURL(file)); //crea una URL temporal en el navegador
-              } else {
-                setPreview("");
-              }
-            }}
+                  registroImagen.onChange(e);
+                  const file = e.target.files?.[0];
+                  setPreview(file ? URL.createObjectURL(file) : "");
+                }}
               />
               {(preview || imagenActual) && (
-            <div className="mb-2 position-relative d-inline-block mt-3">
-              <img
-                className="rounded-3 img-preview"
-                src={preview || imagenActual}
-                alt="Imagen"
-              />
-              <button
-                onClick={() => {
-                  setPreview('');
-                  setImagenActual('');
-                  resetField('imagen');
-                }}
-              >
-                <i className="bi bi-x fs-5 text-danger"></i>
-              </button>
-            </div>
-          )}
+                <div className="relative mt-3 inline-block">
+                  <img
+                    className="h-24 w-24 rounded-lg object-cover"
+                    src={preview || imagenActual}
+                    alt="Vista previa de la imagen"
+                  />
+                  <button
+                    type="button"
+                    aria-label="Quitar imagen"
+                    className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-sm text-white hover:bg-red-500"
+                    onClick={() => {
+                      setPreview("");
+                      setImagenActual("");
+                      resetField("imagen");
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
               <p className="text-red-500 text-xs mt-1 italic">
                 {errors.imagen?.message}
               </p>
